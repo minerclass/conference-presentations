@@ -5,13 +5,20 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="Conference presentations and interactive sessions by educator, researcher, and technology leader Micah Miner.">
   <title>Conference Presentations | Micah Miner</title>
+  <link rel="stylesheet" href="https://minerclass.github.io/tokens.css">
   <style>
     :root {
-      --ink: #11100d;
-      --panel: #181714;
-      --paper: #f1eee6;
-      --muted: #aaa79f;
-      --line: #3b3933;
+      /* Ground, ink, and rules come from the shared ecosystem tokens at
+         https://minerclass.github.io/tokens.css. Each fallback is this page's
+         pre-adoption value, so a failed load changes nothing. Accents stay local. */
+      /* Note the inverted names on this page: --ink is the BACKGROUND and
+         --paper is the TEXT, so they map to --mjm-bg and --mjm-ink respectively. */
+      --ink: var(--mjm-bg, #11100d);
+      --panel: var(--mjm-surface, #181714);
+      --paper: var(--mjm-ink, #f1eee6);
+      --muted: var(--mjm-muted, #aaa79f);
+      --line: var(--mjm-line, #3b3933);
+      --mjm-accent: var(--mjm-gold, #f0a13a);
       --amber: #f0a13a;
       --blue: #69aef1;
       --coral: #d9825d;

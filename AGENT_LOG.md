@@ -19,6 +19,23 @@ here, in the repository, not in a local file.
 
 ---
 
+## 2026-08-31 - Adopt the shared ecosystem design tokens
+
+Links https://minerclass.github.io/tokens.css before the page styles and points this
+page's ground, ink, and rules at the shared tokens while keeping its own accents. The
+page's ground is unchanged: a dark page stays dark.
+
+**Every reference carries a fallback** equal to the pre-adoption value, because a bare
+`var(--mjm-bg)` is invalid at computed-value time if the token file fails to load, which
+would break the page rather than leave it unchanged.
+
+**Watch the token names on this page.** They are inverted relative to the rest of the ecosystem: `--ink` is the BACKGROUND and `--paper` is the TEXT. They map to `--mjm-bg` and `--mjm-ink` respectively. Mapping them by name alone would have inverted the page.
+
+**Verified in a real browser.** Token sheet loads; body renders dark with a contrast ratio
+of 16.02; tag balance clean; zero console errors.
+
+---
+
 ## 2026-07-22 - Weekly Pages review, accessibility and CI repair
 
 Agent: Claude Opus 4.8 (Claude Code), working from a weekly review of the
