@@ -82,6 +82,7 @@
     h1 { margin: 0; max-width: 720px; font: 500 clamp(4rem, 8vw, 7.8rem)/.88 Georgia, serif; letter-spacing: -.07em; }
     .hero h1 em { display: block; margin-top: 26px; color: var(--amber); font-size: .48em; font-weight: 400; letter-spacing: -.02em; }
     .hero-copy > p { max-width: 560px; margin: 34px 0; color: #c8c5bd; font-size: 1.06rem; }
+    .hero-links { display: flex; flex-wrap: wrap; gap: 18px 28px; }
     .text-link {
       display: inline-flex; align-items: center; gap: 18px; color: var(--amber);
       font: 700 .76rem ui-monospace, monospace; letter-spacing: .12em; text-decoration: none; text-transform: uppercase;
@@ -200,7 +201,7 @@
     }
     @media (max-width: 620px) {
       .wrap { width: min(calc(100% - 28px), var(--max)); }
-      .nav-links a:not(:first-child) { display: none; }
+      .nav-links a:nth-child(n+3) { display: none; }
       h1 { font-size: clamp(3.5rem, 18vw, 5rem); }
       .hero { gap: 20px; padding-bottom: 50px; }
       .orbit { min-height: 300px; transform: scale(.9); }
@@ -248,7 +249,11 @@
       <div class="hero-copy">
         <h1>Conference Presentations <em>Ideas in public.</em></h1>
         <p>An evolving argument about education, technology, and human development, shared in classrooms, conference rooms, lecture halls, and public conversations.</p>
-        <a class="text-link" href="#pathways">Explore the speaking arc</a>
+        <div class="hero-links">
+          <a class="text-link" href="#archive">Browse presentations</a>
+          <a class="text-link" href="https://micahminer.com/consulting/">Discuss a session</a>
+          <a class="text-link" href="#pathways">Explore the speaking arc</a>
+        </div>
       </div>
       <div class="orbit" aria-label="Diagram showing ideas traveling between different public rooms">
         <div class="orbit-ring"></div><div class="orbit-ring"></div><div class="orbit-ring"></div>
@@ -262,16 +267,16 @@
 
     <div class="wrap featured">
       <div class="featured-inner">
-        <div class="date-tile">Aug<strong>4</strong>2026</div>
+        <div class="date-tile">Oct<strong>6</strong>2026</div>
         <div>
           <p class="label">Next scheduled session</p>
-          <h2>Research Tooling and Judgment in Doctoral Work</h2>
-          <span class="venue">National Louis University, invited doctoral session on AI and ethics</span>
+          <h2>Future Ready, Not Just AI Ready</h2>
+          <span class="venue">Imagine Learning, IL Future Ready Student Summit</span>
         </div>
         <div class="featured-summary">
-          <p class="muted">A working account of the AI tools used across the dissertation, and where the researcher's judgment has to stay in the loop.</p>
+          <p class="muted">A district-leader keynote on screen time, pedagogical friction, and the decisions adults must retain when tools make schoolwork easier.</p>
           <div class="featured-actions">
-            <a class="button" href="https://minerclass.github.io/dissertation-overview/">Dissertation overview</a>
+            <a class="button" href="https://minerclass.github.io/future-ready-not-just-ai-ready/">View keynote</a>
           </div>
         </div>
       </div>
@@ -370,9 +375,14 @@
           <h2>A public archive of the work.</h2>
           <p>From productive struggle to public purpose, the ideas and their stakes evolve.</p>
         </div>
-        <span class="result-count" aria-live="polite">Showing 10 presentations</span>
+        <span class="result-count" aria-live="polite">Showing 11 presentations</span>
       </div>
       <div class="presentations">
+        <article class="presentation" data-audience="leadership">
+          <span class="year">2026</span><div class="event"><strong>Imagine Learning</strong><span>Upcoming district-leader keynote · October 6</span></div>
+          <div class="talk"><h3>Future Ready, Not Just AI Ready</h3><p>Apply a learning-goal lens to district tools and policies, then name one protection and one owner.</p></div>
+          <a class="view" href="https://minerclass.github.io/future-ready-not-just-ai-ready/">View →</a>
+        </article>
         <article class="presentation" data-audience="leadership">
           <span class="year">2026</span><div class="event"><strong>DuPage ROE</strong><span>Conference speaker</span></div>
           <div class="talk"><h3>What AI Makes Easy Might Be What Students Need to Struggle With</h3><p>The polished output may conceal the learning students did not have to do.</p></div>
