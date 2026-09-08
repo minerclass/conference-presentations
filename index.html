@@ -26,9 +26,10 @@
     }
 
     * { box-sizing: border-box; }
-    html { scroll-behavior: smooth; }
+    html { scroll-behavior: smooth; overflow-x: clip; }
     body {
       margin: 0;
+      overflow-x: hidden;
       color: var(--paper);
       background: var(--ink);
       font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
@@ -153,6 +154,25 @@
     .archive-top { display: flex; justify-content: space-between; align-items: end; gap: 30px; margin-bottom: 34px; }
     .archive-top .section-heading { margin: 0; }
     .result-count { color: var(--muted); font: .72rem ui-monospace, monospace; letter-spacing: .1em; text-transform: uppercase; white-space: nowrap; }
+    .archive-controls {
+      display: grid; grid-template-columns: minmax(240px, 1.6fr) minmax(180px, .8fr) minmax(190px, .9fr) auto;
+      gap: 14px; align-items: end; margin: 0 0 18px; padding: 22px;
+      border: 1px solid var(--line); background: var(--panel);
+    }
+    .filter-field { display: grid; gap: 7px; }
+    .filter-field label {
+      color: var(--muted); font: 700 .68rem ui-monospace, monospace;
+      letter-spacing: .11em; text-transform: uppercase;
+    }
+    .filter-field input, .filter-field select {
+      width: 100%; min-height: 46px; padding: 10px 12px; border: 1px solid #57544c;
+      border-radius: 0; color: var(--paper); background: var(--ink); font: inherit;
+    }
+    .filter-field input:focus-visible, .filter-field select:focus-visible {
+      outline: 2px solid var(--blue); outline-offset: 2px;
+    }
+    .archive-help { margin: 0 0 28px; color: var(--muted); font-size: .86rem; }
+    .empty-results { padding: 36px 0; border-bottom: 1px solid var(--line); color: var(--muted); }
     .presentations { border-top: 1px solid var(--line); }
     .presentation {
       --accent: var(--amber);
@@ -168,6 +188,11 @@
     .event span { color: var(--muted); font-size: .82rem; }
     .talk h3 { margin: 0 0 8px; color: var(--accent); font: italic 500 1.2rem Georgia, serif; }
     .talk p { margin: 0; color: var(--muted); font-size: .88rem; }
+    .presentation-meta { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 12px; }
+    .presentation-meta span {
+      padding: 3px 7px; border: 1px solid var(--line); color: var(--muted);
+      font: 700 .6rem ui-monospace, monospace; letter-spacing: .08em; text-transform: uppercase;
+    }
     .view { color: var(--accent); font: 700 .7rem ui-monospace, monospace; letter-spacing: .12em; text-decoration: none; text-transform: uppercase; }
 
     .adaptations { display: grid; grid-template-columns: repeat(4, 1fr); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
@@ -193,6 +218,7 @@
       .pathway { border-bottom: 1px solid var(--line); }
       .pathway:nth-child(even) { border-right: 0; }
       .pathway:last-child { border-bottom: 0; }
+      .archive-controls { grid-template-columns: 1fr 1fr; }
       .presentation { grid-template-columns: 70px 1fr; gap: 14px 24px; }
       .talk, .view { grid-column: 2; }
       .adaptations { grid-template-columns: 1fr; }
@@ -215,6 +241,7 @@
       .pathway h3 { margin-top: 30px; }
       .archive-top { display: block; }
       .result-count { display: block; margin-top: 18px; }
+      .archive-controls { grid-template-columns: 1fr; padding: 18px; }
       .presentation { grid-template-columns: 1fr; padding: 26px 0; }
       .talk, .view { grid-column: 1; }
       .footer-grid { grid-template-columns: 1fr; }
@@ -226,7 +253,7 @@
   </style>
 </head>
 <body>
-  <a class="skip-link" href="#main">Skip to presentations</a>
+  <a class="skip-link" href="#archive">Skip to presentation archive</a>
   <header>
     <nav class="wrap" aria-label="Main navigation">
       <a class="brand" href="https://micahminer.com/" aria-label="Micah Miner home">
@@ -368,72 +395,137 @@
       </div>
     </section>
 
-    <section class="wrap" id="archive">
+    <section class="wrap" id="archive" tabindex="-1">
       <div class="archive-top">
         <div class="section-heading">
-          <p class="label">The speaking arc</p>
-          <h2>A public archive of the work.</h2>
-          <p>From productive struggle to public purpose, the ideas and their stakes evolve.</p>
+          <p class="label">Complete public directory</p>
+          <h2>Presentations for every room.</h2>
+          <p>Conference sessions, keynotes, workshops, doctoral milestones, course presentations, and alternate editions are collected here.</p>
         </div>
-        <span class="result-count" aria-live="polite">Showing 11 presentations</span>
+        <span class="result-count" id="result-count" role="status" aria-live="polite">Showing 18 presentations</span>
       </div>
-      <div class="presentations">
-        <article class="presentation" data-audience="leadership">
-          <span class="year">2026</span><div class="event"><strong>Imagine Learning</strong><span>Upcoming district-leader keynote · October 6</span></div>
-          <div class="talk"><h3>Future Ready, Not Just AI Ready</h3><p>Apply a learning-goal lens to district tools and policies, then name one protection and one owner.</p></div>
-          <a class="view" href="https://minerclass.github.io/future-ready-not-just-ai-ready/">View →</a>
+      <form class="archive-controls" id="archive-controls" role="search" aria-label="Filter presentation directory">
+        <div class="filter-field">
+          <label for="presentation-search">Search presentations</label>
+          <input id="presentation-search" type="search" autocomplete="off" placeholder="Search title, event, topic, or audience" aria-controls="presentation-list">
+        </div>
+        <div class="filter-field">
+          <label for="audience-filter">Audience</label>
+          <select id="audience-filter" aria-controls="presentation-list">
+            <option value="all">All audiences</option>
+            <option value="practitioner">Educators and coaches</option>
+            <option value="scholar">Scholars and doctoral audiences</option>
+            <option value="civic">Social studies and civic learning</option>
+            <option value="leadership">District and system leaders</option>
+          </select>
+        </div>
+        <div class="filter-field">
+          <label for="format-filter">Format</label>
+          <select id="format-filter" aria-controls="presentation-list">
+            <option value="all">All formats</option>
+            <option value="session">Keynotes and sessions</option>
+            <option value="workshop">Workshops and webinars</option>
+            <option value="milestone">Doctoral milestones</option>
+            <option value="course">Course presentations</option>
+            <option value="alternate">Alternate editions</option>
+          </select>
+        </div>
+        <button class="button" id="clear-filters" type="button">Clear filters</button>
+      </form>
+      <p class="archive-help" id="archive-help">Filters work together. Every result opens a public presentation in the same tab. Press Escape in the search field to clear the search.</p>
+      <div class="presentations" id="presentation-list" aria-describedby="archive-help">
+        <article class="presentation" data-audience="leadership" data-format="session">
+          <time class="year" datetime="2026-10-06">2026</time><div class="event"><strong>Imagine Learning</strong><span>Upcoming district-leader keynote · October 6, 2026</span></div>
+          <div class="talk"><h3 id="talk-future-ready">Future Ready, Not Just AI Ready</h3><p>Apply a learning-goal lens to district tools and policies, then name one protection and one owner.</p><div class="presentation-meta"><span>District leaders</span><span>60-minute keynote</span><span>Upcoming</span></div></div>
+          <a class="view" aria-labelledby="talk-future-ready" href="https://minerclass.github.io/future-ready-not-just-ai-ready/">View &rarr;</a>
         </article>
-        <article class="presentation" data-audience="leadership">
-          <span class="year">2026</span><div class="event"><strong>DuPage ROE</strong><span>Conference speaker</span></div>
-          <div class="talk"><h3>What AI Makes Easy Might Be What Students Need to Struggle With</h3><p>The polished output may conceal the learning students did not have to do.</p></div>
-          <a class="view" href="https://minerclass.github.io/dupage-roe-session-26/">View →</a>
+        <article class="presentation" data-audience="scholar" data-format="session">
+          <time class="year" datetime="2026-08-04">2026</time><div class="event"><strong>NLU AI Ethics in Education</strong><span>Invited doctoral session · August 4, 2026</span></div>
+          <div class="talk"><h3 id="talk-ai-tools">AI Tools for Doctoral Work</h3><p>Match research tools to scholarly tasks while retaining verification, authorship, privacy, and judgment.</p><div class="presentation-meta"><span>Doctoral students</span><span>20-minute session</span><span>Delivered</span></div></div>
+          <a class="view" aria-labelledby="talk-ai-tools" href="https://minerclass.github.io/NLU-AI-Ethics-4-Relationships/">View &rarr;</a>
         </article>
-        <article class="presentation" data-audience="scholar">
-          <span class="year">2026</span><div class="event"><strong>AAACS</strong><span>Interactive scholarly session</span></div>
-          <div class="talk"><h3>Pedagogical Friction as Subversive Praxis</h3><p>An interactive curriculum-studies exploration of resistance, formation, and agency.</p></div>
-          <a class="view" href="https://minerclass.github.io/aaacs-2026-pedagogical-friction/">View →</a>
+        <article class="presentation" data-audience="scholar" data-format="milestone">
+          <time class="year" datetime="2026-08-13">2026</time><div class="event"><strong>Dissertation Proposal Defense</strong><span>National Louis University · August 13, 2026</span></div>
+          <div class="talk"><h3 id="talk-proposal-defense">Pedagogical Friction in the Age of Generative AI and Tertiary Algorithmicity</h3><p>The proposal argument, research questions, qualitative-dominant mixed-methods design, and study boundaries.</p><div class="presentation-meta"><span>Committee</span><span>Defense presentation</span><span>Completed milestone</span></div></div>
+          <a class="view" aria-labelledby="talk-proposal-defense" href="https://minerclass.github.io/diss-proposal-defense/presentation/">View &rarr;</a>
         </article>
-        <article class="presentation" data-audience="scholar">
-          <span class="year">2026</span><div class="event"><strong>NLU AI in Education</strong><span>Conference presentation</span></div>
-          <div class="talk"><h3>When the Output Looks Like Learning</h3><p>A framework for noticing when generative fluency bypasses cognitive and noetic work.</p></div>
-          <a class="view" href="https://minerclass.github.io/nlu_ai-ed-conference-pres26/">View →</a>
+        <article class="presentation" data-audience="scholar" data-format="course">
+          <time class="year" datetime="2026-08">2026</time><div class="event"><strong>CCD-698 Dissertation Research Seminar</strong><span>Month Three check-in · August 2026</span></div>
+          <div class="talk"><h3 id="talk-month-three">Month Three: Defense Passed</h3><p>Records the proposal-defense milestone, committee feedback, IRB sequence, and next research gates.</p><div class="presentation-meta"><span>Doctoral course</span><span>Progress check-in</span><span>Public academic</span></div></div>
+          <a class="view" aria-labelledby="talk-month-three" href="https://minerclass.github.io/ccd698-month-three-checkin/">View &rarr;</a>
         </article>
-        <article class="presentation" data-audience="civic">
-          <span class="year">2026</span><div class="event"><strong>NCSS</strong><span>Historical inquiry session</span></div>
-          <div class="talk"><h3>When AI Does the Thinking</h3><p>Preserving historical inquiry through pedagogical friction in secondary social studies classrooms.</p></div>
-          <a class="view" href="https://minerclass.github.io/historical-inquiry-friction/ncss-historical-inquiry/">View &rarr;</a>
+        <article class="presentation" data-audience="scholar" data-format="course">
+          <time class="year" datetime="2026">2026</time><div class="event"><strong>CCD-698 Dissertation Research Seminar</strong><span>Term 1 reflection · Summer 2026</span></div>
+          <div class="talk"><h3 id="talk-term-one">Integrating Purpose, Pedagogical Friction, and the Practitioner-Scholar Journey</h3><p>An interactive reflection connecting educational leadership, doctoral research, and practitioner-scholar identity.</p><div class="presentation-meta"><span>Doctoral course</span><span>Interactive reflection</span><span>Public academic</span></div></div>
+          <a class="view" aria-labelledby="talk-term-one" href="https://minerclass.github.io/ccd698-term1-reflection/">View &rarr;</a>
         </article>
-        <article class="presentation" data-audience="civic">
-          <span class="year">2026</span><div class="event"><strong>Historical Inquiry Friction</strong><span>Full interactive deck</span></div>
-          <div class="talk"><h3>When AI Does the Thinking</h3><p>A fuller interactive version with resources, notes, and connected inquiry activities.</p></div>
-          <a class="view" href="https://minerclass.github.io/historical-inquiry-friction/">View &rarr;</a>
+        <article class="presentation" data-audience="scholar" data-format="course">
+          <time class="year" datetime="2026-07">2026</time><div class="event"><strong>CCD-698 Dissertation Research Seminar</strong><span>Month Two check-in · July 2026</span></div>
+          <div class="talk"><h3 id="talk-month-two">Month Two: Approved to Defend</h3><p>Tracks proposal-defense approval, CITI completion, IRB preparation, and proposal-to-IRB alignment.</p><div class="presentation-meta"><span>Doctoral course</span><span>Progress check-in</span><span>Public academic</span></div></div>
+          <a class="view" aria-labelledby="talk-month-two" href="https://minerclass.github.io/ccd698-month-two-checkin/">View &rarr;</a>
         </article>
-        <article class="presentation" data-audience="scholar">
-          <span class="year">2026</span><div class="event"><strong>NLU Doctoral Colloquium</strong><span>Workshop and presentation</span></div>
-          <div class="talk"><h3>Pedagogical Friction and AI</h3><p>A practitioner-scholar workshop for diagnosing which forms of friction learning needs.</p></div>
-          <a class="view" href="https://minerclass.github.io/nlu-doccolloquium-may26/">View →</a>
+        <article class="presentation" data-audience="leadership" data-format="session">
+          <time class="year" datetime="2026-06-11">2026</time><div class="event"><strong>DuPage ROE</strong><span>Conference session · June 11, 2026</span></div>
+          <div class="talk"><h3 id="talk-dupage">What AI Makes Easy Might Be What Students Need to Struggle With</h3><p>Use the friction lens to distinguish support, bypass, and barriers in AI-supported learning.</p><div class="presentation-meta"><span>District leaders</span><span>Conference session</span><span>Delivered</span></div></div>
+          <a class="view" aria-labelledby="talk-dupage" href="https://minerclass.github.io/dupage-roe-session-26/">View &rarr;</a>
         </article>
-        <article class="presentation" data-audience="practitioner">
-          <span class="year">2026</span><div class="event"><strong>ISTE+ASCD</strong><span>Expert webinar</span></div>
-          <div class="talk"><h3>The Pedagogical Importance of Friction in the Age of Generative AI</h3><p>Instructional design strategies that preserve the struggle that develops learners.</p></div>
-          <a class="view" href="https://minerclass.github.io/pedagogical-friction-iste-ascd-decks/iste-ew/">View →</a>
+        <article class="presentation" data-audience="scholar" data-format="course">
+          <time class="year" datetime="2026-06">2026</time><div class="event"><strong>CCD-698 Dissertation Research Seminar</strong><span>First-month planning presentation · June 2026</span></div>
+          <div class="talk"><h3 id="talk-month-one">First-Month Dissertation Goals</h3><p>Establishes the first monthly goals, proposal-stage boundaries, and planned dissertation milestones.</p><div class="presentation-meta"><span>Doctoral course</span><span>Planning presentation</span><span>Public academic</span></div></div>
+          <a class="view" aria-labelledby="talk-month-one" href="https://minerclass.github.io/ccd698-first-month-goals/">View &rarr;</a>
         </article>
-        <article class="presentation" data-audience="practitioner">
-          <span class="year">2026</span><div class="event"><strong>Practitioner Edition</strong><span>Interactive learning experience</span></div>
-          <div class="talk"><h3>The Pedagogical Imperative of Friction</h3><p>A practical pathway from the framework to classroom decisions.</p></div>
-          <a class="view" href="https://minerclass.github.io/pedagogical-friction-iste-ascd-decks/practitioner/">View →</a>
+        <article class="presentation" data-audience="scholar" data-format="workshop">
+          <time class="year" datetime="2026-05">2026</time><div class="event"><strong>NLU Doctoral Colloquium</strong><span>Workshop and presentation · May 2026</span></div>
+          <div class="talk"><h3 id="talk-colloquium">Pedagogical Friction and AI</h3><p>A practitioner-scholar workshop for diagnosing which forms of friction learning needs.</p><div class="presentation-meta"><span>Doctoral audience</span><span>Workshop</span><span>Delivered</span></div></div>
+          <a class="view" aria-labelledby="talk-colloquium" href="https://minerclass.github.io/nlu-doccolloquium-may26/">View &rarr;</a>
         </article>
-        <article class="presentation" data-audience="civic">
-          <span class="year">2026</span><div class="event"><strong>Social Studies</strong><span>Disciplinary adaptation</span></div>
-          <div class="talk"><h3>Teaching Social Studies in the Age of AI</h3><p>What happens to civic judgment when fluent answers arrive before inquiry?</p></div>
-          <a class="view" href="https://minerclass.github.io/nlu_ai-ed-conference-pres26/social-studies/">View →</a>
+        <article class="presentation" data-audience="scholar" data-format="session">
+          <time class="year" datetime="2026">2026</time><div class="event"><strong>AAACS</strong><span>Interactive scholarly session · 2026</span></div>
+          <div class="talk"><h3 id="talk-aaacs-friction">Pedagogical Friction as Subversive Praxis</h3><p>An interactive curriculum-studies exploration of resistance, formation, agency, and competing interpretations.</p><div class="presentation-meta"><span>Scholars</span><span>Conference session</span><span>Event edition</span></div></div>
+          <a class="view" aria-labelledby="talk-aaacs-friction" href="https://minerclass.github.io/aaacs-2026-pedagogical-friction/">View &rarr;</a>
         </article>
-        <article class="presentation" data-audience="civic">
-          <span class="year">2026</span><div class="event"><strong>AAACS</strong><span>Curriculum and civic adaptation</span></div>
-          <div class="talk"><h3>Frictionless Citizen</h3><p>What civic capacities disappear when speed and convenience become educational virtues?</p></div>
-          <a class="view" href="https://minerclass.github.io/nlu_ai-ed-conference-pres26/aaacs-frictionless-citizen/">View →</a>
+        <article class="presentation" data-audience="scholar" data-format="session">
+          <time class="year" datetime="2026">2026</time><div class="event"><strong>NLU AI in Education</strong><span>Conference presentation · 2026</span></div>
+          <div class="talk"><h3 id="talk-output-learning">When the Output Looks Like Learning</h3><p>Distinguish visible performance from evidence of subsequent learning in AI-supported work.</p><div class="presentation-meta"><span>Scholars and educators</span><span>Conference presentation</span><span>Event edition</span></div></div>
+          <a class="view" aria-labelledby="talk-output-learning" href="https://minerclass.github.io/nlu_ai-ed-conference-pres26/">View &rarr;</a>
+        </article>
+        <article class="presentation" data-audience="civic" data-format="session">
+          <time class="year" datetime="2026">2026</time><div class="event"><strong>NCSS Historical Inquiry Edition</strong><span>Social studies session · 2026</span></div>
+          <div class="talk"><h3 id="talk-ncss">When AI Does the Thinking</h3><p>Preserve sourcing, contextualization, corroboration, and accountable historical interpretation.</p><div class="presentation-meta"><span>Social studies</span><span>Conference edition</span><span>Current edition</span></div></div>
+          <a class="view" aria-labelledby="talk-ncss" href="https://minerclass.github.io/historical-inquiry-friction/ncss-historical-inquiry/">View &rarr;</a>
+        </article>
+        <article class="presentation" data-audience="civic" data-format="workshop">
+          <time class="year" datetime="2026">2026</time><div class="event"><strong>Historical Inquiry Friction</strong><span>Full interactive workshop deck · 2026</span></div>
+          <div class="talk"><h3 id="talk-historical-full">When AI Does the Thinking</h3><p>A fuller version with disciplinary examples, redesign activities, notes, and connected inquiry tools.</p><div class="presentation-meta"><span>Social studies</span><span>Workshop deck</span><span>Full edition</span></div></div>
+          <a class="view" aria-labelledby="talk-historical-full" href="https://minerclass.github.io/historical-inquiry-friction/">View &rarr;</a>
+        </article>
+        <article class="presentation" data-audience="practitioner" data-format="workshop">
+          <time class="year" datetime="2026">2026</time><div class="event"><strong>ISTE+ASCD</strong><span>Expert webinar · 2026</span></div>
+          <div class="talk"><h3 id="talk-iste">The Pedagogical Importance of Friction in the Age of Generative AI</h3><p>Instructional design strategies for preserving target thinking while reducing barriers.</p><div class="presentation-meta"><span>Educators and coaches</span><span>Webinar</span><span>Event edition</span></div></div>
+          <a class="view" aria-labelledby="talk-iste" href="https://minerclass.github.io/pedagogical-friction-iste-ascd-decks/iste-ew/">View &rarr;</a>
+        </article>
+        <article class="presentation" data-audience="practitioner" data-format="workshop">
+          <time class="year" datetime="2026">2026</time><div class="event"><strong>Practitioner Edition</strong><span>Interactive learning experience · 2026</span></div>
+          <div class="talk"><h3 id="talk-practitioner">The Pedagogical Imperative of Friction</h3><p>A practical pathway from the conceptual framework to classroom task and support decisions.</p><div class="presentation-meta"><span>Teachers and coaches</span><span>Workshop edition</span><span>Current edition</span></div></div>
+          <a class="view" aria-labelledby="talk-practitioner" href="https://minerclass.github.io/pedagogical-friction-iste-ascd-decks/practitioner/">View &rarr;</a>
+        </article>
+        <article class="presentation" data-audience="civic" data-format="session">
+          <time class="year" datetime="2026">2026</time><div class="event"><strong>Social Studies Virtual Session</strong><span>Disciplinary adaptation · 2026</span></div>
+          <div class="talk"><h3 id="talk-social-studies">Teaching Social Studies in the Age of AI</h3><p>Use four questions to protect civic reasoning, source work, and judgment in AI-supported lessons.</p><div class="presentation-meta"><span>Social studies</span><span>Virtual session</span><span>Disciplinary edition</span></div></div>
+          <a class="view" aria-labelledby="talk-social-studies" href="https://minerclass.github.io/nlu_ai-ed-conference-pres26/social-studies/">View &rarr;</a>
+        </article>
+        <article class="presentation" data-audience="civic" data-format="session">
+          <time class="year" datetime="2026">2026</time><div class="event"><strong>AAACS Civic Adaptation</strong><span>Curriculum and civic session · 2026</span></div>
+          <div class="talk"><h3 id="talk-frictionless-citizen">Frictionless Citizen</h3><p>Ask what evidence shows that learners practiced the deliberation democratic life requires.</p><div class="presentation-meta"><span>Curriculum and civic life</span><span>Scholarly session</span><span>Alternate route</span></div></div>
+          <a class="view" aria-labelledby="talk-frictionless-citizen" href="https://minerclass.github.io/nlu_ai-ed-conference-pres26/aaacs-frictionless-citizen/">View &rarr;</a>
+        </article>
+        <article class="presentation" data-audience="scholar" data-format="alternate">
+          <time class="year" datetime="2026">2026</time><div class="event"><strong>Academic Edition</strong><span>Qualifying-paper talk edition · 2026</span></div>
+          <div class="talk"><h3 id="talk-academic-friction">The Pedagogical Imperative of Friction</h3><p>The fuller theoretical presentation, with learning-science lineages, media ecology, and an explicit proposed extension.</p><div class="presentation-meta"><span>Scholars</span><span>Academic edition</span><span>Archive</span></div></div>
+          <a class="view" aria-labelledby="talk-academic-friction" href="https://minerclass.github.io/pedagogical-friction-iste-ascd-decks/">View &rarr;</a>
         </article>
       </div>
+      <p class="empty-results" id="empty-results" hidden>No presentations match these filters. Clear the filters or try a broader search.</p>
     </section>
 
     <section class="wrap">
@@ -480,22 +572,66 @@
     const filterButtons = document.querySelectorAll("[data-filter]");
     const presentations = document.querySelectorAll(".presentation");
     const resultCount = document.querySelector(".result-count");
+    const searchInput = document.querySelector("#presentation-search");
+    const audienceFilter = document.querySelector("#audience-filter");
+    const formatFilter = document.querySelector("#format-filter");
+    const clearFilters = document.querySelector("#clear-filters");
+    const emptyResults = document.querySelector("#empty-results");
+    const totalPresentations = presentations.length;
+
+    const normalize = (value) => value.toLocaleLowerCase().replace(/\s+/g, " ").trim();
+
+    function applyFilters(options = {}) {
+      const query = normalize(searchInput.value);
+      const audience = audienceFilter.value;
+      const format = formatFilter.value;
+      let visible = 0;
+
+      presentations.forEach((presentation) => {
+        const matchesQuery = !query || normalize(presentation.textContent).includes(query);
+        const matchesAudience = audience === "all" || presentation.dataset.audience === audience;
+        const matchesFormat = format === "all" || presentation.dataset.format === format;
+        const show = matchesQuery && matchesAudience && matchesFormat;
+        presentation.hidden = !show;
+        if (show) visible += 1;
+      });
+
+      filterButtons.forEach((button) => {
+        button.setAttribute("aria-pressed", String(button.dataset.filter === audience));
+      });
+
+      resultCount.textContent = `Showing ${visible} of ${totalPresentations} presentation${totalPresentations === 1 ? "" : "s"}`;
+      emptyResults.hidden = visible !== 0;
+
+      if (options.scroll) {
+        document.querySelector("#archive").scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+    }
 
     filterButtons.forEach((button) => {
       button.addEventListener("click", () => {
-        const filter = button.dataset.filter;
-        let visible = 0;
-
-        filterButtons.forEach((item) => item.setAttribute("aria-pressed", String(item === button)));
-        presentations.forEach((presentation) => {
-          const show = filter === "all" || presentation.dataset.audience === filter;
-          presentation.hidden = !show;
-          if (show) visible += 1;
-        });
-
-        resultCount.textContent = `Showing ${visible} presentation${visible === 1 ? "" : "s"}`;
-        document.querySelector("#archive").scrollIntoView({ behavior: "smooth", block: "start" });
+        audienceFilter.value = button.dataset.filter;
+        applyFilters({ scroll: true });
       });
+    });
+
+    searchInput.addEventListener("input", () => applyFilters());
+    audienceFilter.addEventListener("change", () => applyFilters());
+    formatFilter.addEventListener("change", () => applyFilters());
+
+    searchInput.addEventListener("keydown", (event) => {
+      if (event.key === "Escape" && searchInput.value) {
+        searchInput.value = "";
+        applyFilters();
+      }
+    });
+
+    clearFilters.addEventListener("click", () => {
+      searchInput.value = "";
+      audienceFilter.value = "all";
+      formatFilter.value = "all";
+      applyFilters();
+      searchInput.focus();
     });
   </script>
 </body>
