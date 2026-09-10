@@ -27,7 +27,7 @@ version of the argument exists.
 - Audience and format filters can be combined.
 - The result count is announced as a live status message.
 - All controls use native form elements and work from the keyboard.
-- The clear button restores all 18 presentations and returns focus to search.
+- The clear button restores all 20 presentations and returns focus to search.
 - The skip link moves directly to the directory.
 
 ## Related public hubs
