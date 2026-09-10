@@ -19,6 +19,27 @@ here, in the repository, not in a local file.
 
 ---
 
+## 2026-09-10 - Add the PD365 Friction Audit workshop
+
+New `article.presentation` at the top of the archive, `data-audience="leadership"`
+`data-format="workshop"`. Both values already existed in the taxonomy; no filter option
+needed adding.
+
+Placed first because the archive leads with upcoming work and October 27 is the latest
+scheduled date, ahead of the October 6 Imagine Learning keynote.
+
+**Verified.** Entry count 18 to 19. The `h3` id `talk-friction-audit` is unique across the
+archive, so the `aria-labelledby` on its View link resolves correctly - checked for
+duplicates across all ids, none found. No hardcoded totals exist in this page; the count
+is computed from `presentations.length`, so nothing else needed updating. Target URL
+returns 200.
+
+**Open item.** The event is upcoming and its `presentation-meta` says so. After October 27
+the third span should change from "Upcoming" to "Delivered" to match how past sessions in
+this archive are marked.
+
+---
+
 ## 2026-08-31 - Adopt the shared ecosystem design tokens
 
 Links https://minerclass.github.io/tokens.css before the page styles and points this
